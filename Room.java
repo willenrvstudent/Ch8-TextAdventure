@@ -19,7 +19,8 @@ import java.util.Iterator;
 public class Room 
 {
     private String description;
-    private HashMap<String, Room> exits;        // stores exits of this room.
+    private HashMap<String, Room> exits;  // stores exits of this room.
+    private boolean hasItem;
 
     /**
      * Create a room described "description". Initially, it has
@@ -31,6 +32,14 @@ public class Room
     {
         this.description = description;
         exits = new HashMap<String, Room>();
+        hasItem = false;
+    }
+    
+    public Room(String description, boolean isThereItem)
+    {
+        this.description = description;
+        exits = new HashMap<String, Room>();
+        hasItem = isThereItem;
     }
 
     /**

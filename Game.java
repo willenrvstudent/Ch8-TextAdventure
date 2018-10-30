@@ -59,6 +59,11 @@ public class Game
 
         currentRoom = outside;  // start game outside
     }
+    
+    private void look()
+    {
+      System.out.println(currentRoom.getLongDescription());
+    }
 
     /**
      *  Main play routine.  Loops until end of play.
@@ -114,6 +119,11 @@ public class Game
             case GO:
                 goRoom(command);
                 break;
+                
+            case LOOK:
+                look();
+                break;
+            
 
             case QUIT:
                 wantToQuit = quit(command);
