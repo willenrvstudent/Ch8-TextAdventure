@@ -13,12 +13,18 @@
  * 
  * @author  Michael Kölling and David J. Barnes
  * @version 2011.08.10
+ * 
+ * @author  Willen O. Leal
+ * @version 2018.05.11
  */
-
+import java.util.ArrayList;
 public class Game 
 {
     private Parser parser;
     private Room currentRoom;
+    private ArrayList<Room> roomList = new ArrayList<Room>();
+    private int backCommandCount = 0;
+    private ArrayList<String[]> itemsCollected = new ArrayList<String[]>();
         
     /**
      * Create the game and initialise its internal map.
@@ -34,30 +40,61 @@ public class Game
      */
     private void createRooms()
     {
-        Room outside, theater, pub, lab, office;
-      
-        // create the rooms
-        outside = new Room("outside the main entrance of the university");
-        theater = new Room("in a lecture theater");
-        pub = new Room("in the campus pub");
-        lab = new Room("in a computing lab");
-        office = new Room("in the computing admin office");
-        
-        // initialise room exits
-        outside.setExit("east", theater);
-        outside.setExit("south", lab);
-        outside.setExit("west", pub);
-
-        theater.setExit("west", outside);
-
-        pub.setExit("east", outside);
-
-        lab.setExit("north", outside);
-        lab.setExit("east", office);
-
-        office.setExit("west", lab);
-
-        currentRoom = outside;  // start game outside
+       String[] watchTowerItem = new String[]{"bolt cutter", "15lbs"};
+       String[] officeItem = new String[]{"key", "2Ibs"};
+       String[] outsideTest = new String[]{"test", "0Ibs"};
+       
+       Room cell, solitaire, corridor1, corridor2, corridor3,office,
+       commonArea, prisonYard, watchTower, kitchen, storageArea, outside;
+       
+       outside = new Room("outside! You have scaped!", outsideTest);
+       cell = new Room("in your cell, there might be a way out...");
+       solitaire = new Room("in the solitaire, kinda like your cell...");
+       corridor1 = new Room("in a corridor. Where does it lead to?");
+       corridor2 = new Room("in a corridor. Where does it lead to?");
+       corridor3 = new Room("in a corridor. Where does it lead to?");
+       office = new Room("in the sheriff's office! Quick, he might be back soon", officeItem);
+       commonArea = new Room("in the common lobby");
+       prisonYard = new Room("in the exercise yard. So close from the outside! If you could only cut through the fence!");
+       watchTower = new Room("in the watch tower! The guards are asleep, don't wake them up!", watchTowerItem);
+       kitchen = new Room("in the kitchen. How about a snack?");
+       storageArea = new Room("in the storage area.");
+       
+       cell.setExit("north", solitaire);
+       cell.setExit("south", commonArea);
+       
+       solitaire.setExit("west", corridor1);
+       solitaire.setExit("south", cell);
+       
+       corridor1.setExit("east", solitaire);
+       corridor1.setExit("south", office);
+       
+       office.setExit("north", corridor1);
+       office.setExit("south", corridor2);
+       
+       corridor2.setExit("east", commonArea);
+       corridor2.setExit("north", office);
+       
+       commonArea.setExit("north", cell);
+       commonArea.setExit("south", prisonYard);
+       commonArea.setExit("east", corridor3);
+       commonArea.setExit("west", corridor2);
+       
+       corridor3.setExit("east", kitchen);
+       corridor3.setExit("west", commonArea);
+       
+       kitchen.setExit("west", corridor3);
+       kitchen.setExit("north", storageArea);
+       
+       prisonYard.setExit("north", commonArea);
+       prisonYard.setExit("south", outside);
+       prisonYard.setExit("west", watchTower);
+       
+       outside.setExit("north", prisonYard);
+       
+       watchTower.setExit("east", prisonYard);
+       
+       currentRoom = cell;
     }
     
     private void look()
@@ -117,14 +154,27 @@ public class Game
                 break;
 
             case GO:
+                backCommandCount = 0;
                 goRoom(command);
                 break;
                 
             case LOOK:
                 look();
                 break;
+                
+            case GET:
+                getRoomItem();
+                break;
+                
+            case EAT:
+                System.out.println("You just ate a snack from your pocket!");
+                break;
+                
+            case BACK:
+                backCommandCount++;
+                goBack();
+                break;
             
-
             case QUIT:
                 wantToQuit = quit(command);
                 break;
@@ -142,10 +192,56 @@ public class Game
     private void printHelp() 
     {
         System.out.println("You are lost. You are alone. You wander");
-        System.out.println("around at the university.");
+        System.out.println("around at the prison complex.");
         System.out.println();
         System.out.println("Your command words are:");
         parser.showCommands();
+    }
+    
+    private void goBack()
+    {
+        if (backCommandCount == 2)
+        {
+            currentRoom = roomList.get(roomList.size() - 2);
+            System.out.println(currentRoom.getLongDescription());
+        }
+        else if (backCommandCount == 3)
+        {
+            currentRoom = roomList.get(roomList.size() - 3);
+            System.out.println(currentRoom.getLongDescription());
+        }
+        
+        else if (backCommandCount == 1)
+        {
+            currentRoom = roomList.get(roomList.size() - 1);
+            System.out.println(currentRoom.getLongDescription());
+        }
+        
+        else
+        {
+            System.out.println("You cannot return more than 3 times!");
+            System.out.println(currentRoom.getLongDescription());
+        }
+            
+    }
+    
+    public void getRoomItem()
+    {
+        if(currentRoom.getHasItem())
+        {
+           if (currentRoom.getItemName() != "test")
+           {
+            itemsCollected.add(currentRoom.getItem());
+           
+           }
+        }
+        
+        else
+        {
+           System.out.println("This room has no item!");
+        }
+    
+    
     }
 
     /** 
@@ -154,24 +250,63 @@ public class Game
      */
     private void goRoom(Command command) 
     {
-        if(!command.hasSecondWord()) {
+        if(!command.hasSecondWord()) 
+        {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
             return;
         }
 
         String direction = command.getSecondWord();
-
+        roomList.add(currentRoom);
         // Try to leave current room.
         Room nextRoom = currentRoom.getExit(direction);
-
-        if (nextRoom == null) {
-            System.out.println("There is no door!");
+        
+        if (nextRoom == null) 
+        {
+            System.out.println("There is no exit that way!");
+            return ;
         }
-        else {
+      
+        
+           
+      
+        
+        if (nextRoom.getItemName() == "bolt cutter" && itemsCollected.size() == 0)
+        {
+              System.out.println("You need the key to enter the watchTower!");
+        }
+        
+        
+        else if (nextRoom.getItemName() == "test" && (itemsCollected.size() == 0 || itemsCollected.size() == 1))
+        {
+             System.out.println("You need something to cut through the fence!");
+        }
+            
+       
+        else 
+        {       
             currentRoom = nextRoom;
-            System.out.println(currentRoom.getLongDescription());
+            if(currentRoom.getHasItem())
+            {
+                 if (currentRoom.getItemName() != "test")
+                 {
+                        System.out.println(currentRoom.getLongDescription());
+                        currentRoom.printItemDescription(); 
+                 }
+                 else if (currentRoom.getItemName() == "test")
+                 {
+                       System.out.println(currentRoom.getLongDescription());
+                 }
+            }
+            else
+            {
+              System.out.println(currentRoom.getLongDescription()); 
+            
+            }
+        
         }
+       
     }
 
     /** 

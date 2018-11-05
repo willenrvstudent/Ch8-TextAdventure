@@ -1,6 +1,7 @@
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Arrays;
 
 /**
  * Class Room - a room in an adventure game.
@@ -20,8 +21,8 @@ public class Room
 {
     private String description;
     private HashMap<String, Room> exits;  // stores exits of this room.
+    private String[] item;    // stores item and its description [0,1]
     private boolean hasItem;
-
     /**
      * Create a room described "description". Initially, it has
      * no exits. "description" is something like "a kitchen" or
@@ -35,11 +36,12 @@ public class Room
         hasItem = false;
     }
     
-    public Room(String description, boolean isThereItem)
+    public Room(String description, String[] descriptionNWeight)
     {
         this.description = description;
         exits = new HashMap<String, Room>();
-        hasItem = isThereItem;
+        hasItem = true;
+        item = Arrays.copyOf(descriptionNWeight, descriptionNWeight.length);
     }
 
     /**
@@ -86,7 +88,34 @@ public class Room
         }
         return returnString;
     }
-
+    
+    public boolean getHasItem()
+    {
+        return hasItem;
+    }
+    
+    public String[] getItem()
+    {
+        return item;
+    }
+    
+    public String getItemName()
+    {
+        if (item != null)
+        {
+            return item[0];
+        }
+        else 
+        {
+            return "0";
+        }
+    }
+    
+    public void printItemDescription()
+    {
+        System.out.println("Look an item!   Name; " + item[0] + "\n" + "\t\tWeight: " + item[1]);  
+    }
+    
     /**
      * Return the room that is reached if we go from this room in direction
      * "direction". If there is no room in that direction, return null.
