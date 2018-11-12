@@ -15,6 +15,9 @@ import java.util.Arrays;
  * 
  * @author  Michael Kölling and David J. Barnes
  * @version 2011.08.10
+ * 
+ * @author  Willen O. Leal
+ * @version 2018.05.11
  */
 
 public class Room 
@@ -89,16 +92,23 @@ public class Room
         return returnString;
     }
     
+    /**
+     * returns a boolean indicating if a room has an item or not
+     */
     public boolean getHasItem()
     {
         return hasItem;
     }
-    
+    /**
+     * returns an array of strings representin the item
+     */
     public String[] getItem()
     {
         return item;
     }
-    
+    /**
+     * return the name of the item
+     */
     public String getItemName()
     {
         if (item != null)
@@ -110,7 +120,9 @@ public class Room
             return "0";
         }
     }
-    
+    /**
+     * Print a description of the item
+     */
     public void printItemDescription()
     {
         System.out.println("Look an item!   Name; " + item[0] + "\n" + "\t\tWeight: " + item[1]);  

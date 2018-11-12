@@ -97,9 +97,6 @@ public class Game
        currentRoom = cell;
     }
     
-    /**
-     * Display the commands in a stream of strings
-     */
     private void look()
     {
       System.out.println(currentRoom.getLongDescription());
@@ -129,8 +126,8 @@ public class Game
     private void printWelcome()
     {
         System.out.println();
-        System.out.println("Welcome to Jail Escape");
-        System.out.println("Jail Escape is a new, incredibly adventure game.");
+        System.out.println("Welcome to the World of Zuul!");
+        System.out.println("World of Zuul is a new, incredibly boring adventure game.");
         System.out.println("Type '" + CommandWord.HELP + "' if you need help.");
         System.out.println();
         System.out.println(currentRoom.getLongDescription());
@@ -201,11 +198,6 @@ public class Game
         parser.showCommands();
     }
     
-    /**
-     * Keeps track of the visited rooms so that one can go back, up to 
-     * three times.
-     */
-    
     private void goBack()
     {
         if (backCommandCount == 2)
@@ -233,18 +225,15 @@ public class Game
             
     }
     
-    /**
-     * Check if a room has an item when the get command is used
-     */
     public void getRoomItem()
     {
         if(currentRoom.getHasItem())
         {
-           if (currentRoom.getItemName() != "test")
+           if (currentRoom.getItemName() == "test")
            {
             itemsCollected.add(currentRoom.getItem());
            
-           }
+        }
         }
         
         else
@@ -261,8 +250,7 @@ public class Game
      */
     private void goRoom(Command command) 
     {
-        if(!command.hasSecondWord()) 
-        {
+        if(!command.hasSecondWord()) {
             // if there is no second word, we don't know where to go...
             System.out.println("Go where?");
             return;
@@ -273,48 +261,36 @@ public class Game
         // Try to leave current room.
         Room nextRoom = currentRoom.getExit(direction);
         
-        if (nextRoom == null) 
-        {
+        if (nextRoom == null) {
             System.out.println("There is no exit that way!");
-            return ;
         }
-      
+        
+        
         
         if (nextRoom.getItemName() == "bolt cutter" && itemsCollected.size() == 0)
         {
-              System.out.println("You need the key to enter the watchTower!");
+           System.out.println("You need the key to enter the watchTower!");
         }
         
         
         else if (nextRoom.getItemName() == "test" && (itemsCollected.size() == 0 || itemsCollected.size() == 1))
         {
-             System.out.println("You need something to cut through the fence!");
+           System.out.println("You need something to cut through the fence!");
         }
-            
-       
-        else 
-        {       
+        
+        else {       
             currentRoom = nextRoom;
             if(currentRoom.getHasItem())
             {
-                 if (currentRoom.getItemName() != "test")
-                 {
-                        System.out.println(currentRoom.getLongDescription());
-                        currentRoom.printItemDescription(); 
-                 }
-                 else if (currentRoom.getItemName() == "test")
-                 {
-                       System.out.println(currentRoom.getLongDescription());
-                 }
+                System.out.println(currentRoom.getLongDescription());
+                currentRoom.printItemDescription();
             }
             else
             {
-              System.out.println(currentRoom.getLongDescription()); 
+                System.out.println(currentRoom.getLongDescription()); 
             
             }
-        
         }
-       
     }
 
     /** 
@@ -332,14 +308,4 @@ public class Game
             return true;  // signal that we want to quit
         }
     }
-    
-    /**
-     * Main method for the class
-     */
-    public static void main(String[] args)
-    {
-        new Game().play();
-    }
 }
-
-
